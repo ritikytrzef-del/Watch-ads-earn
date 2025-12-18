@@ -80,7 +80,7 @@
 
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto;
-            display: grid; grid-template-columns: 1fr 1fr; padding: 10px 15px; background: var(--glass-bg);
+            display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 15px; background: var(--glass-bg);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color);
         }
         .nav-button {
@@ -121,6 +121,7 @@
         .reward-card img { width: 60px; height: 60px; margin-bottom: 12px; }
         .reward-card h4 { margin: 8px 0; font-size: 16px; }
         .reward-card p { margin: 0; font-size: 14px; opacity: 0.9; }
+        .min-info { font-size: 12px; margin-top: 5px; opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -137,9 +138,9 @@
         </div>
 
         <div class="balance-card">
-            <h2>BDT EARN</h2>
+            <h2>USDT EARN</h2>
             <h3>Your Total Earnings</h3>
-            <div class="amount" id="total-earning">0.00 ৳</div>
+            <div class="amount" id="total-earning">0.0000 USDT</div>
         </div>
 
         <div class="stats-grid">
@@ -171,11 +172,15 @@
         </div>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar (3 buttons) -->
     <div class="nav-bar">
         <button class="nav-button" onclick="showRewardZone()">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Rewards</span>
+        </button>
+        <button class="nav-button" onclick="showRewardZone()">
             <i class="fa-solid fa-money-bill-transfer"></i>
-            <span>Reward Zone</span>
+            <span>Withdraw</span>
         </button>
         <button class="nav-button" onclick="showRewardZone()">
             <i class="fa-solid fa-code"></i>
@@ -183,47 +188,51 @@
         </button>
     </div>    
 
-    <!-- Reward Zone Modal (Replaces both Withdraw & Developer) -->
+    <!-- Reward Zone Modal -->
     <div id="rewardZoneModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('rewardZoneModal')">&times;</span>
             <h3 class="card-title">Reward Zone</h3>
-            <p>Select your preferred reward method (Minimum withdrawal: 50 ৳)</p>
+            <p>Select your preferred reward method</p>
 
             <div class="reward-options">
                 <!-- USDT (TON Network) -->
-                <div class="reward-card" onclick="openWithdrawForm('USDT (TON Network)')">
+                <div class="reward-card" onclick="openWithdrawForm('USDT (TON Network)', 0.15)">
                     <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
                     <h4>USDT</h4>
                     <p>TON Network</p>
+                    <div class="min-info">Min: 0.15 USDT</div>
                 </div>
 
                 <!-- Litecoin -->
-                <div class="reward-card" onclick="openWithdrawForm('Litecoin')">
+                <div class="reward-card" onclick="openWithdrawForm('Litecoin', 0.15)">
                     <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png" alt="Litecoin">
                     <h4>Litecoin</h4>
                     <p>LTC Address</p>
+                    <div class="min-info">Min: 0.15 USDT equiv.</div>
                 </div>
 
                 <!-- Google Play Gift Card INR -->
-                <div class="reward-card" onclick="openWithdrawForm('Google Play Gift Card INR')">
+                <div class="reward-card" onclick="openWithdrawForm('Google Play Gift Card INR', 0.12)">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/512px-Google_Play_Store_badge_EN.svg.png" alt="Google Play" style="border-radius:8px;">
                     <h4>Google Play</h4>
                     <p>Gift Card (INR)</p>
+                    <div class="min-info">Min: 0.12 USDT</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Individual Withdraw Form Modal -->
+    <!-- Withdraw Form Modal -->
     <div id="withdrawModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('withdrawModal')">&times;</span>
             <h3 class="card-title" id="withdraw-title">Withdraw</h3>
+            <p id="min-withdraw-text"></p>
             <form id="withdraw-form">
                 <input type="text" id="selected-method" readonly style="background:#f0f0f0;">
                 <input type="text" id="account-address" placeholder="Enter Address / Email" required>
-                <input type="number" id="withdraw-amount" placeholder="Amount (BDT)" required>
+                <input type="number" step="0.000001" id="withdraw-amount" placeholder="Amount (USDT)" required>
                 <button type="submit" class="action-button" id="withdraw-submit-button">
                     <span class="button-text">Submit Request</span>
                     <div class="spinner" style="display: none;"></div>
@@ -238,13 +247,12 @@
         // --- CONFIGURATION ---
         const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';  // Replace with your bot token
         const CHAT_ID = '5187944932';
-        const AD_REWARD = 10;
+        const AD_REWARD_USDT = 0.0005;   // 0.0005 USDT per ad
         const DAILY_AD_LIMIT = 100;
-        const MINIMUM_WITHDRAWAL = 50;
 
         // --- STATE & TELEGRAM INIT ---
         let state = {
-            totalEarning: 0.00,
+            totalEarning: 0.0000,  // in USDT
             adCount: 0,
             adsWatchedToday: 0,
             lastAdWatchedDate: null,
@@ -264,10 +272,11 @@
         const adLoaderOverlay = document.getElementById('ad-loader-overlay');
         const profilePicEl = document.getElementById('profile-pic');
         const greetingEl = document.getElementById('greeting');
+        let currentMinWithdraw = 0.15;  // default
 
         // --- UI UPDATE ---
         function updateUI() {
-            totalEarningEl.textContent = `${state.totalEarning.toFixed(2)} ৳`;
+            totalEarningEl.textContent = `${state.totalEarning.toFixed(4)} USDT`;
             adCountEl.textContent = state.adCount;
             adsTodayCountEl.textContent = `${state.adsWatchedToday} / ${DAILY_AD_LIMIT}`;
             
@@ -295,7 +304,7 @@
 
             window.showGiga()
                 .then(() => {
-                    state.totalEarning += AD_REWARD;
+                    state.totalEarning += AD_REWARD_USDT;
                     state.adCount += 1;
                     state.adsWatchedToday += 1;
 
@@ -304,7 +313,7 @@
 
                     saveState();
                     updateUI();
-                    showToast(`+${AD_REWARD.toFixed(2)} ৳ earned!`, 'success');
+                    showToast(`+${AD_REWARD_USDT.toFixed(4)} USDT earned!`, 'success');
                     tg.HapticFeedback.notificationOccurred('success');
                 })
                 .catch(e => {
@@ -321,10 +330,14 @@
             document.getElementById('rewardZoneModal').style.display = 'flex';
         }
 
-        function openWithdrawForm(method) {
+        function openWithdrawForm(method, minUSD) {
+            currentMinWithdraw = minUSD;
             document.getElementById('selected-method').value = method;
             document.getElementById('withdraw-title').textContent = 'Withdraw - ' + method;
-            document.getElementById('account-address').placeholder = method.includes('Google Play') ? 'Enter Email for Gift Card' : 'Enter Wallet Address';
+            document.getElementById('min-withdraw-text').textContent = `Minimum withdrawal: ${minUSD} USDT`;
+            const placeholder = method.includes('Google Play') ? 'Enter Email for Gift Card' : 'Enter Wallet Address';
+            document.getElementById('account-address').placeholder = placeholder;
+            document.getElementById('withdraw-amount').placeholder = 'Amount (USDT)';
             closeModal('rewardZoneModal');
             showModal('withdrawModal');
         }
@@ -343,7 +356,7 @@
             const user = tg.initDataUnsafe?.user;
 
             if (!address) return showToast('Please enter address/email.', 'error');
-            if (amount < MINIMUM_WITHDRAWAL) return showToast(`Minimum withdrawal is ${MINIMUM_WITHDRAWAL} ৳.`, 'error');
+            if (amount < currentMinWithdraw) return showToast(`Minimum withdrawal is ${currentMinWithdraw} USDT.`, 'error');
             if (amount > state.totalEarning) return showToast('Insufficient balance.', 'error');
 
             buttonText.style.display = 'none';
@@ -356,7 +369,7 @@
                             `---------------------------------------\n` +
                             `💳 <b>Method:</b> ${method}\n` +
                             `🔢 <b>Address/Email:</b> <code>${address}</code>\n` +
-                            `💵 <b>Amount:</b> ${amount.toFixed(2)} ৳`;
+                            `💵 <b>Amount:</b> ${amount.toFixed(4)} USDT`;
 
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
