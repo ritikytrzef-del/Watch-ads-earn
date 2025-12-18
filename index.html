@@ -112,33 +112,15 @@
         .spinner { border: 2px solid #f3f3f3; border-top: 2px solid var(--secondary-color); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+        /* Reward Zone Styles */
+        .reward-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+        .reward-card {
+            background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 20px; border-radius: 16px;
+            text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
-        .social-item {
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 70px;
-            color: #333;
-        }
-        .social-item img {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 5px;
-            transition: transform 0.2s ease-in-out;
-        }
-        .social-item span {
-            font-size: 14px;
-        }
-        .social-item:hover img {
-            transform: scale(1.2);
-        }
+        .reward-card img { width: 60px; height: 60px; margin-bottom: 12px; }
+        .reward-card h4 { margin: 8px 0; font-size: 16px; }
+        .reward-card p { margin: 0; font-size: 14px; opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -189,32 +171,59 @@
         </div>
     </div>
 
+    <!-- Navigation Bar -->
     <div class="nav-bar">
-        <button class="nav-button" onclick="showModal('withdrawModal')">
+        <button class="nav-button" onclick="showRewardZone()">
             <i class="fa-solid fa-money-bill-transfer"></i>
-            <span>Withdraw</span>
+            <span>Reward Zone</span>
         </button>
-        <button class="nav-button" onclick="showModal('developerModal')">
+        <button class="nav-button" onclick="showRewardZone()">
             <i class="fa-solid fa-code"></i>
             <span>Developer</span>
         </button>
     </div>    
 
-    <!-- Withdraw Modal -->
+    <!-- Reward Zone Modal (Replaces both Withdraw & Developer) -->
+    <div id="rewardZoneModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('rewardZoneModal')">&times;</span>
+            <h3 class="card-title">Reward Zone</h3>
+            <p>Select your preferred reward method (Minimum withdrawal: 50 ৳)</p>
+
+            <div class="reward-options">
+                <!-- USDT (TON Network) -->
+                <div class="reward-card" onclick="openWithdrawForm('USDT (TON Network)')">
+                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
+                    <h4>USDT</h4>
+                    <p>TON Network</p>
+                </div>
+
+                <!-- Litecoin -->
+                <div class="reward-card" onclick="openWithdrawForm('Litecoin')">
+                    <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png" alt="Litecoin">
+                    <h4>Litecoin</h4>
+                    <p>LTC Address</p>
+                </div>
+
+                <!-- Google Play Gift Card INR -->
+                <div class="reward-card" onclick="openWithdrawForm('Google Play Gift Card INR')">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/512px-Google_Play_Store_badge_EN.svg.png" alt="Google Play" style="border-radius:8px;">
+                    <h4>Google Play</h4>
+                    <p>Gift Card (INR)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Individual Withdraw Form Modal -->
     <div id="withdrawModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('withdrawModal')">&times;</span>
-            <h3 class="card-title">Withdraw Money</h3>
-            <p>Minimum withdrawal: 50 ৳</p>
+            <h3 class="card-title" id="withdraw-title">Withdraw</h3>
             <form id="withdraw-form">
-                <select id="method" name="method" required>
-                    <option value="" disabled selected>Select Payment Method</option>
-                    <option value="bKash">bKash</option>
-                    <option value="Nagad">Nagad</option>
-                    <option value="Rocket">Rocket</option>
-                </select>
-                <input type="tel" id="account-number" placeholder="Account Number" required>
-                <input type="number" id="withdraw-amount" placeholder="Amount" required>
+                <input type="text" id="selected-method" readonly style="background:#f0f0f0;">
+                <input type="text" id="account-address" placeholder="Enter Address / Email" required>
+                <input type="number" id="withdraw-amount" placeholder="Amount (BDT)" required>
                 <button type="submit" class="action-button" id="withdraw-submit-button">
                     <span class="button-text">Submit Request</span>
                     <div class="spinner" style="display: none;"></div>
@@ -223,40 +232,15 @@
         </div>
     </div>
 
-    <!-- Developer Modal -->
-    <div id="developerModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal('developerModal')">&times;</span>
-            <h3 class="card-title">
-                <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png" alt="Developer Icon" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;">
-                Developer Info
-            </h3>
-            <p>This Telegram Mini App was created by <strong>MD AL AZIM</strong>.</p>
-            <p>I am a Web and Bot Developer. If anyone wants to purchase a <strong>custom Telegram bot or app</strong>, feel free to contact me.</p>
-
-            <h4>Contact:</h4>
-            <div class="social-links">
-                <a href="https://t.me/mdalazim1" target="_blank" class="social-item">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" />
-                    <span>Telegram</span>
-                </a>
-                <a href="https://facebook.com/mdalazim0" target="_blank" class="social-item">
-                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" />
-                    <span>Facebook</span>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <div id="toast"></div>
 
     <script>
         // --- CONFIGURATION ---
-        const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';  // Replace with your actual bot token
+        const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';  // Replace with your bot token
         const CHAT_ID = '5187944932';
-        const AD_REWARD = 10;           // Reward per ad in BDT
-        const DAILY_AD_LIMIT = 100;     // Max ads per day
-        const MINIMUM_WITHDRAWAL = 50;  // Minimum withdrawal amount
+        const AD_REWARD = 10;
+        const DAILY_AD_LIMIT = 100;
+        const MINIMUM_WITHDRAWAL = 50;
 
         // --- STATE & TELEGRAM INIT ---
         let state = {
@@ -264,7 +248,7 @@
             adCount: 0,
             adsWatchedToday: 0,
             lastAdWatchedDate: null,
-            weeklyActivity: [0, 0, 0, 0, 0, 0, 0]  // Sat to Fri
+            weeklyActivity: [0, 0, 0, 0, 0, 0, 0]
         };
 
         const tg = window.Telegram.WebApp;
@@ -315,7 +299,7 @@
                     state.adCount += 1;
                     state.adsWatchedToday += 1;
 
-                    const todayIndex = (new Date().getDay() + 1) % 7; // Adjust for your week order
+                    const todayIndex = (new Date().getDay() + 1) % 7;
                     state.weeklyActivity[todayIndex] += 1;
 
                     saveState();
@@ -332,7 +316,20 @@
                 });
         }
 
-        // --- WITHDRAWAL HANDLER ---
+        // --- REWARD ZONE ---
+        function showRewardZone() {
+            document.getElementById('rewardZoneModal').style.display = 'flex';
+        }
+
+        function openWithdrawForm(method) {
+            document.getElementById('selected-method').value = method;
+            document.getElementById('withdraw-title').textContent = 'Withdraw - ' + method;
+            document.getElementById('account-address').placeholder = method.includes('Google Play') ? 'Enter Email for Gift Card' : 'Enter Wallet Address';
+            closeModal('rewardZoneModal');
+            showModal('withdrawModal');
+        }
+
+        // --- WITHDRAWAL ---
         async function handleWithdrawal(event) {
             event.preventDefault();
 
@@ -340,12 +337,12 @@
             const buttonText = submitButton.querySelector('.button-text');
             const spinner = submitButton.querySelector('.spinner');
 
-            const method = document.getElementById('method').value;
-            const accountNumber = document.getElementById('account-number').value;
+            const method = document.getElementById('selected-method').value;
+            const address = document.getElementById('account-address').value.trim();
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
             const user = tg.initDataUnsafe?.user;
 
-            if (!method) return showToast('Please select a payment method.', 'error');
+            if (!address) return showToast('Please enter address/email.', 'error');
             if (amount < MINIMUM_WITHDRAWAL) return showToast(`Minimum withdrawal is ${MINIMUM_WITHDRAWAL} ৳.`, 'error');
             if (amount > state.totalEarning) return showToast('Insufficient balance.', 'error');
 
@@ -358,7 +355,7 @@
                             `🆔 <b>User ID:</b> <code>${user?.id}</code>\n` +
                             `---------------------------------------\n` +
                             `💳 <b>Method:</b> ${method}\n` +
-                            `🔢 <b>Number:</b> <code>${accountNumber}</code>\n` +
+                            `🔢 <b>Address/Email:</b> <code>${address}</code>\n` +
                             `💵 <b>Amount:</b> ${amount.toFixed(2)} ৳`;
 
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -472,7 +469,6 @@
             updateUI();
             withdrawForm.addEventListener('submit', handleWithdrawal);
 
-            // Close modal when clicking outside
             window.onclick = (event) => {
                 if (event.target.classList.contains('modal')) {
                     event.target.style.display = 'none';
@@ -484,4 +480,3 @@
     </script>
 </body>
 </html>
-      
