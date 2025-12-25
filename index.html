@@ -1,495 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Giga Pub Pro</title>
-    
-    <!-- Giga Pub Ad Script -->
-    <script src="https://ad.gigapub.tech/script?id=4424" async></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RichAds — Telegram Mini App</title>
 
-        :root {
-            --primary-color: #00897B;
-            --secondary-color: #00695C;
-            --background-color: #F0F4F8;
-            --card-background: #FFFFFF;
-            --text-color: #1E293B;
-            --text-light: #64748B;
-            --primary-glow: rgba(0, 137, 123, 0.4);
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --border-color: #E2E8F0;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 20px 15px 100px 15px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            overscroll-behavior-y: contain;
-            -webkit-font-smoothing: antialiased;
-        }
-        .container { max-width: 500px; margin: 0 auto; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+<!-- RichAds SDK -->
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
-        .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; animation: fadeIn 0.5s ease-out; }
-        #profile-pic {
-            width: 48px; height: 48px; border-radius: 50%; background-color: var(--border-color); color: var(--primary-color);
-            display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; overflow: hidden;
-        }
-        #profile-pic span { color: var(--primary-color); }
-        #greeting { font-size: 22px; font-weight: 800; }
-        
-        .balance-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white; padding: 28px; border-radius: 24px; text-align: center; margin-bottom: 20px;
-            box-shadow: 0 12px 25px rgba(0, 105, 92, 0.2); animation: fadeIn 0.6s ease-out;
-        }
-        .balance-card h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 500; opacity: 0.9; }
-        .balance-card .amount { font-size: 48px; font-weight: 800; line-height: 1.2; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-        .stat-item {
-            background-color: var(--card-background); padding: 20px; border-radius: 18px; text-align: center;
-            border: 1px solid var(--border-color); animation: fadeIn 0.7s ease-out;
-        }
-        .stat-item .icon { font-size: 28px; color: var(--primary-color); margin-bottom: 12px; }
-        .stat-item .value { font-size: 24px; font-weight: 800; }
-        .stat-item .label { font-size: 14px; color: var(--text-light); }
-        
-        .card { background-color: var(--card-background); padding: 20px; border-radius: 18px; margin-bottom: 20px; border: 1px solid var(--border-color); animation: fadeIn 0.8s ease-out; }
-        .card-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-        .chart-container { position: relative; height: 200px; width: 100%; }
+<script>
+  let adsReady = false;
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--primary-glow); } 70% { box-shadow: 0 0 0 10px rgba(0, 137, 123, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 137, 123, 0); } }
-        .action-button {
-            display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 18px; border: none;
-            border-radius: 16px; background-color: var(--primary-color); color: white; font-size: 18px; font-weight: 700;
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        .action-button.pulsing { animation: pulse 2s infinite; }
-        .action-button:hover:not(:disabled) { transform: translateY(-3px); }
-        .action-button:active:not(:disabled) { transform: scale(0.98); }
-        .action-button:disabled { background-color: #B0BEC5; cursor: not-allowed; }
+  // Initialize RichAds
+  window.TelegramAdsController = new TelegramAdsController();
+  window.TelegramAdsController.initialize({
+    pubId: "991750",
+    appId: "5124"
+  });
 
-        .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto;
-            display: grid; grid-template-columns: repeat(3, 1fr); padding: 10px 15px; background: var(--glass-bg);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color);
-        }
-        .nav-button {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px;
-            border-radius: 12px; color: var(--text-light); text-decoration: none; font-size: 12px; font-weight: 500;
-            border: none; background: transparent; cursor: pointer; transition: all 0.2s ease;
-        }
-        .nav-button:hover { color: var(--primary-color); background-color: rgba(0, 137, 123, 0.1); }
-        .nav-button i { font-size: 20px; }
+  // Wait until SDK ready
+  const checkReady = setInterval(() => {
+    if (window.TelegramAdsController?.initialized) {
+      adsReady = true;
+      clearInterval(checkReady);
+      console.log("RichAds Ready");
+    }
+  }, 300);
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: flex-end; animation: fadeIn 0.3s ease-out; }
-        .modal-content { background-color: var(--card-background); padding: 20px; border-radius: 20px 20px 0 0; width: 100%; max-width: 500px; box-sizing: border-box; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .close-button { color: #aaa; float: right; font-size: 28px; line-height: 1; font-weight: bold; cursor: pointer; }
-        .modal-content input, .modal-content select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #CFD8DC; border-radius: 10px; font-size: 16px; }
-        
-        #ad-loader-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; align-items: center;
-            justify-content: center; flex-direction: column; gap: 15px; color: white; font-size: 16px;
-        }
-        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--primary-color); border-radius: 50%; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 10px; background-color: #333; color: white; font-size: 15px; z-index: 2000; transition: bottom 0.5s ease; }
-        #toast.show { bottom: 100px; }
-        #toast.success { background-color: #2E7D32; }
-        #toast.error { background-color: #C62828; }
-        .spinner { border: 2px solid #f3f3f3; border-top: 2px solid var(--secondary-color); border-radius: 50%; width: 18px; height: 18px; animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  // Generic show function — runs on button click only
+  function showAd(format, extra = {}) {
+    if (!adsReady) {
+      alert("Ad loading… 2–3 seconds baad dobara try karein");
+      return;
+    }
 
-        /* Reward Zone Styles */
-        .reward-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-        .reward-card {
-            background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 20px; border-radius: 16px;
-            text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        .reward-card img { width: 60px; height: 60px; margin-bottom: 12px; }
-        .reward-card h4 { margin: 8px 0; font-size: 16px; }
-        .reward-card p { margin: 0; font-size: 14px; opacity: 0.9; }
-        .min-info { font-size: 12px; margin-top: 5px; opacity: 0.8; }
-    </style>
+    window.TelegramAdsController.requestAd({
+      format,
+      ...extra
+    });
+  }
+</script>
+
+<style>
+  body{font-family:Arial;padding:16px;background:#f7f7fb}
+  h3{margin-bottom:12px}
+  button{
+    width:100%;padding:12px;margin:6px 0;
+    border:none;border-radius:10px;
+    background:#4f46e5;color:#fff;font-size:16px;
+    cursor:pointer
+  }
+  button:active{opacity:.85}
+  #banner_box{margin-top:10px}
+</style>
 </head>
+
 <body>
 
-    <div id="ad-loader-overlay">
-        <div class="loader"></div>
-        <span>Loading Ad...</span>
-    </div>
+<h3>Click & Show Ads</h3>
 
-    <div class="container">
-        <div class="profile-header">
-            <div id="profile-pic"><i class="fa-solid fa-user"></i></div>
-            <h1 id="greeting">Welcome!</h1>
-        </div>
+<button onclick="showAd('playable')">
+  Ads 1 — Playable
+</button>
 
-        <div class="balance-card">
-            <h2>USDT EARN</h2>
-            <h3>Your Total Earnings</h3>
-            <div class="amount" id="total-earning">0.0000 USDT</div>
-        </div>
+<button onclick="showAd('interstitial')">
+  Ads 2 — Interstitial Video
+</button>
 
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="icon"><i class="fa-solid fa-rectangle-ad"></i></div>
-                <div class="value" id="ad-count">0</div>
-                <div class="label">Total Ads Watched</div>
-            </div>
-            <div class="stat-item">
-                <div class="icon"><i class="fa-solid fa-calendar-day"></i></div>
-                <div class="value" id="ads-today-count">0 / 100</div>
-                <div class="label">Watched Today</div>
-            </div>
-        </div>
+<button onclick="showAd('interstitial')">
+  Ads 3 — Interstitial Banner
+</button>
 
-        <div class="card">
-            <h3 class="card-title">Today's Task</h3>
-            <button class="action-button pulsing" id="watch-ad-button" onclick="watchAd()">
-                <i class="fa-solid fa-play"></i>
-                <span>Watch Ad</span>
-            </button>
-        </div>
+<button onclick="showAd('banner', { containerId: 'banner_box' })">
+  Ads 4 — Embedded Banner
+</button>
 
-        <div class="card">
-            <h3 class="card-title">Weekly Activity</h3>
-            <div class="chart-container">
-                <canvas id="activityChart"></canvas>
-            </div>
-        </div>
-    </div>
+<button onclick="showAd('push')">
+  Ads 5 — Push Style
+</button>
 
-    <!-- Navigation Bar (3 buttons) -->
-    <div class="nav-bar">
-        <button class="nav-button" onclick="showRewardZone()">
-            <i class="fa-solid fa-trophy"></i>
-            <span>Rewards</span>
-        </button>
-        <button class="nav-button" onclick="showRewardZone()">
-            <i class="fa-solid fa-money-bill-transfer"></i>
-            <span>Withdraw</span>
-        </button>
-        <button class="nav-button" onclick="showRewardZone()">
-            <i class="fa-solid fa-code"></i>
-            <span>Developer</span>
-        </button>
-    </div>    
+<!-- Banner render area -->
+<div id="banner_box"></div>
 
-    <!-- Reward Zone Modal -->
-    <div id="rewardZoneModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal('rewardZoneModal')">&times;</span>
-            <h3 class="card-title">Reward Zone</h3>
-            <p>Select your preferred reward method</p>
-
-            <div class="reward-options">
-                <!-- USDT (TON Network) -->
-                <div class="reward-card" onclick="openWithdrawForm('USDT (TON Network)', 0.15)">
-                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
-                    <h4>USDT</h4>
-                    <p>TON Network</p>
-                    <div class="min-info">Min: 0.15 USDT</div>
-                </div>
-
-                <!-- Litecoin -->
-                <div class="reward-card" onclick="openWithdrawForm('Litecoin', 0.15)">
-                    <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.png" alt="Litecoin">
-                    <h4>Litecoin</h4>
-                    <p>LTC Address</p>
-                    <div class="min-info">Min: 0.15 USDT equiv.</div>
-                </div>
-
-                <!-- Google Play Gift Card INR -->
-                <div class="reward-card" onclick="openWithdrawForm('Google Play Gift Card INR', 0.12)">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/512px-Google_Play_Store_badge_EN.svg.png" alt="Google Play" style="border-radius:8px;">
-                    <h4>Google Play</h4>
-                    <p>Gift Card (INR)</p>
-                    <div class="min-info">Min: 0.12 USDT</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Withdraw Form Modal -->
-    <div id="withdrawModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="closeModal('withdrawModal')">&times;</span>
-            <h3 class="card-title" id="withdraw-title">Withdraw</h3>
-            <p id="min-withdraw-text"></p>
-            <form id="withdraw-form">
-                <input type="text" id="selected-method" readonly style="background:#f0f0f0;">
-                <input type="text" id="account-address" placeholder="Enter Address / Email" required>
-                <input type="number" step="0.000001" id="withdraw-amount" placeholder="Amount (USDT)" required>
-                <button type="submit" class="action-button" id="withdraw-submit-button">
-                    <span class="button-text">Submit Request</span>
-                    <div class="spinner" style="display: none;"></div>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <div id="toast"></div>
-
-    <script>
-        // --- CONFIGURATION ---
-        const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';  // Replace with your bot token
-        const CHAT_ID = '5187944932';
-        const AD_REWARD_USDT = 0.0005;   // 0.0005 USDT per ad
-        const DAILY_AD_LIMIT = 100;
-
-        // --- STATE & TELEGRAM INIT ---
-        let state = {
-            totalEarning: 0.0000,  // in USDT
-            adCount: 0,
-            adsWatchedToday: 0,
-            lastAdWatchedDate: null,
-            weeklyActivity: [0, 0, 0, 0, 0, 0, 0]
-        };
-
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-
-        // --- DOM ELEMENTS ---
-        const totalEarningEl = document.getElementById('total-earning');
-        const adCountEl = document.getElementById('ad-count');
-        const adsTodayCountEl = document.getElementById('ads-today-count');
-        const watchAdButton = document.getElementById('watch-ad-button');
-        const withdrawForm = document.getElementById('withdraw-form');
-        const adLoaderOverlay = document.getElementById('ad-loader-overlay');
-        const profilePicEl = document.getElementById('profile-pic');
-        const greetingEl = document.getElementById('greeting');
-        let currentMinWithdraw = 0.15;  // default
-
-        // --- UI UPDATE ---
-        function updateUI() {
-            totalEarningEl.textContent = `${state.totalEarning.toFixed(4)} USDT`;
-            adCountEl.textContent = state.adCount;
-            adsTodayCountEl.textContent = `${state.adsWatchedToday} / ${DAILY_AD_LIMIT}`;
-            
-            const buttonSpan = watchAdButton.querySelector('span');
-            if (state.adsWatchedToday >= DAILY_AD_LIMIT) {
-                watchAdButton.disabled = true;
-                buttonSpan.textContent = 'Daily Limit Reached';
-                watchAdButton.classList.remove('pulsing');
-            } else {
-                watchAdButton.disabled = false;
-                buttonSpan.textContent = 'Watch Ad';
-                watchAdButton.classList.add('pulsing');
-            }
-            updateChart();
-        }
-
-        // --- WATCH AD ---
-        function watchAd() {
-            if (state.adsWatchedToday >= DAILY_AD_LIMIT) {
-                showToast('You have reached the daily ad limit.', 'error');
-                return;
-            }
-
-            adLoaderOverlay.style.display = 'flex';
-
-            window.showGiga()
-                .then(() => {
-                    state.totalEarning += AD_REWARD_USDT;
-                    state.adCount += 1;
-                    state.adsWatchedToday += 1;
-
-                    const todayIndex = (new Date().getDay() + 1) % 7;
-                    state.weeklyActivity[todayIndex] += 1;
-
-                    saveState();
-                    updateUI();
-                    showToast(`+${AD_REWARD_USDT.toFixed(4)} USDT earned!`, 'success');
-                    tg.HapticFeedback.notificationOccurred('success');
-                })
-                .catch(e => {
-                    console.error("Giga Pub Ad Error:", e);
-                    showToast('Ad not completed. Please try again.', 'error');
-                })
-                .finally(() => {
-                    adLoaderOverlay.style.display = 'none';
-                });
-        }
-
-        // --- REWARD ZONE ---
-        function showRewardZone() {
-            document.getElementById('rewardZoneModal').style.display = 'flex';
-        }
-
-        function openWithdrawForm(method, minUSD) {
-            currentMinWithdraw = minUSD;
-            document.getElementById('selected-method').value = method;
-            document.getElementById('withdraw-title').textContent = 'Withdraw - ' + method;
-            document.getElementById('min-withdraw-text').textContent = `Minimum withdrawal: ${minUSD} USDT`;
-            const placeholder = method.includes('Google Play') ? 'Enter Email for Gift Card' : 'Enter Wallet Address';
-            document.getElementById('account-address').placeholder = placeholder;
-            document.getElementById('withdraw-amount').placeholder = 'Amount (USDT)';
-            closeModal('rewardZoneModal');
-            showModal('withdrawModal');
-        }
-
-        // --- WITHDRAWAL ---
-        async function handleWithdrawal(event) {
-            event.preventDefault();
-
-            const submitButton = document.getElementById('withdraw-submit-button');
-            const buttonText = submitButton.querySelector('.button-text');
-            const spinner = submitButton.querySelector('.spinner');
-
-            const method = document.getElementById('selected-method').value;
-            const address = document.getElementById('account-address').value.trim();
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            const user = tg.initDataUnsafe?.user;
-
-            if (!address) return showToast('Please enter address/email.', 'error');
-            if (amount < currentMinWithdraw) return showToast(`Minimum withdrawal is ${currentMinWithdraw} USDT.`, 'error');
-            if (amount > state.totalEarning) return showToast('Insufficient balance.', 'error');
-
-            buttonText.style.display = 'none';
-            spinner.style.display = 'inline-block';
-            submitButton.disabled = true;
-
-            const message = `<b>💰 New Withdrawal Request 💰</b>\n\n` +
-                            `👤 <b>User:</b> ${user?.first_name || ''} ${user?.last_name || ''} (@${user?.username || 'N/A'})\n` +
-                            `🆔 <b>User ID:</b> <code>${user?.id}</code>\n` +
-                            `---------------------------------------\n` +
-                            `💳 <b>Method:</b> ${method}\n` +
-                            `🔢 <b>Address/Email:</b> <code>${address}</code>\n` +
-                            `💵 <b>Amount:</b> ${amount.toFixed(4)} USDT`;
-
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-
-                const result = await response.json();
-                if (result.ok) {
-                    state.totalEarning -= amount;
-                    saveState();
-                    updateUI();
-                    closeModal('withdrawModal');
-                    showToast('Withdrawal request sent successfully!', 'success');
-                    tg.HapticFeedback.notificationOccurred('success');
-                } else {
-                    showToast(`Error: ${result.description}`, 'error');
-                }
-            } catch (error) {
-                showToast('Failed to send request. Try again.', 'error');
-            } finally {
-                buttonText.style.display = 'inline';
-                spinner.style.display = 'none';
-                submitButton.disabled = false;
-            }
-        }
-
-        // --- MODAL & TOAST ---
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'show ' + type;
-            setTimeout(() => {
-                toast.className = toast.className.replace('show', '');
-            }, 3000);
-        }
-
-        // --- CHART ---
-        let myChart;
-        function updateChart() {
-            const ctx = document.getElementById('activityChart').getContext('2d');
-            if (myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-                    datasets: [{
-                        label: 'Ads',
-                        data: state.weeklyActivity,
-                        backgroundColor: 'rgba(0, 137, 123, 0.1)',
-                        borderColor: 'rgba(0, 137, 123, 1)',
-                        borderWidth: 2,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                    plugins: { legend: { display: false } },
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
-
-        // --- LOCAL STORAGE ---
-        function saveState() {
-            localStorage.setItem('gigaPubProState', JSON.stringify(state));
-        }
-
-        function loadState() {
-            const saved = localStorage.getItem('gigaPubProState');
-            if (saved) {
-                state = JSON.parse(saved);
-            }
-
-            const today = new Date().toLocaleDateString();
-            if (state.lastAdWatchedDate !== today) {
-                state.adsWatchedToday = 0;
-                state.lastAdWatchedDate = today;
-                saveState();
-            }
-        }
-
-        // --- INITIALIZATION ---
-        function initApp() {
-            loadState();
-
-            const user = tg.initDataUnsafe?.user;
-            if (user?.first_name) {
-                greetingEl.textContent = `Welcome, ${user.first_name}!`;
-                profilePicEl.innerHTML = `<span>${user.first_name.charAt(0).toUpperCase()}</span>`;
-            }
-
-            updateUI();
-            withdrawForm.addEventListener('submit', handleWithdrawal);
-
-            window.onclick = (event) => {
-                if (event.target.classList.contains('modal')) {
-                    event.target.style.display = 'none';
-                }
-            };
-        }
-
-        window.addEventListener('load', initApp);
-    </script>
 </body>
 </html>
