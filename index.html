@@ -1,73 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RichAds Monetization Test</title>
+    <title>Telegram Mini App - Monetized</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-</head>
-<body style="background-color: #f4f4f4; text-align: center; padding: 50px 20px; font-family: sans-serif;">
-
-    <h2>RichAds Ad Test 🚀</h2>
-    <p>Publisher ID: 991750 | App ID: 5124</p>
     
-    <div style="margin-top: 30px;">
-        <button id="video-ad-btn" style="padding: 15px 25px; background: #0088cc; color: white; border: none; border-radius: 8px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer; margin-bottom: 10px;">
-            Watch Video Ad
-        </button>
-        <br>
-        <button id="banner-ad-btn" style="padding: 15px 25px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer;">
-            Show Interstitial Banner
-        </button>
-    </div>
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
-    <p id="log-status" style="margin-top: 20px; color: #666; font-size: 13px;">Status: Ready</p>
+    <style>
+        body {
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #222222);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .ad-button {
+            background-color: #0088cc;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .ad-button:active {
+            transform: scale(0.98);
+        }
+        #status {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Welcome to My App</h2>
+    <p>Niche button par click karke ads dekhein</p>
+    
+    <button class="ad-button" id="btn-video">Watch Video Ad</button>
+    <button class="ad-button" style="background-color: #28a745;" id="btn-banner">Show Banner Ad</button>
+
+    <p id="status">Status: Ready</p>
 
     <script>
+        // --- Telegram Setup ---
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        // RichAds Controller Initialization
+        // --- RichAds Setup ---
         const richadsController = new window.TelegramAdsController();
 
+        // Initialization with your IDs
         richadsController.initialize({
             pubId: "991750",
             appId: "5124",
-            debug: true // Testing ke liye true rakhein taaki console mein report dikhe
+            debug: false // Production mode
         });
 
-        const statusLabel = document.getElementById('log-status');
+        const statusText = document.getElementById('status');
 
-        // 1. Video Ad Trigger
-        document.getElementById('video-ad-btn').addEventListener('click', () => {
-            statusLabel.innerText = "Status: Loading Video Ad...";
+        // Video Ad Logic
+        document.getElementById('btn-video').addEventListener('click', () => {
+            statusText.innerText = "Ad load ho raha hai...";
             richadsController.triggerInterstitialVideo()
-                .then((res) => {
-                    statusLabel.innerText = "Status: Video Ad Finished!";
-                    console.log("Video Success:", res);
+                .then((result) => {
+                    statusText.innerText = "Success: Ad dekha gaya!";
                 })
-                .catch((err) => {
-                    statusLabel.innerText = "Status: Video Failed/Closed";
-                    console.error("Video Error:", err);
+                .catch((error) => {
+                    statusText.innerText = "Ad nahi chal paya ya band kar diya gaya.";
                 });
         });
 
-        // 2. Banner Ad Trigger
-        document.getElementById('banner-ad-btn').addEventListener('click', () => {
-            statusLabel.innerText = "Status: Loading Banner...";
+        // Banner Ad Logic
+        document.getElementById('btn-banner').addEventListener('click', () => {
+            statusText.innerText = "Banner load ho raha hai...";
             richadsController.triggerInterstitialBanner()
-                .then((res) => {
-                    statusLabel.innerText = "Status: Banner Shown!";
+                .then(() => {
+                    statusText.innerText = "Success: Banner dikhaya gaya!";
                 })
-                .catch((err) => {
-                    statusLabel.innerText = "Status: Banner Error";
+                .catch(() => {
+                    statusText.innerText = "Banner load nahi hua.";
                 });
         });
 
-        // 3. Native Notification (Automatic)
+        // Auto-show Native Notification on Load
         window.onload = () => {
             richadsController.triggerNativeNotification();
         };
