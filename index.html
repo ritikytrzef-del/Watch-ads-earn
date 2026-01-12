@@ -2,84 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tap2Rich - Space Style</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RichAds Monetization Test</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body style="background-color: #f4f4f4; text-align: center; padding: 50px 20px; font-family: sans-serif;">
+
+    <h2>RichAds Ad Test 🚀</h2>
+    <p>Publisher ID: 991750 | App ID: 5124</p>
+    
+    <div style="margin-top: 30px;">
+        <button id="video-ad-btn" style="padding: 15px 25px; background: #0088cc; color: white; border: none; border-radius: 8px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer; margin-bottom: 10px;">
+            Watch Video Ad
+        </button>
+        <br>
+        <button id="banner-ad-btn" style="padding: 15px 25px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer;">
+            Show Interstitial Banner
+        </button>
+    </div>
+
+    <p id="log-status" style="margin-top: 20px; color: #666; font-size: 13px;">Status: Ready</p>
 
     <script>
-        // 1. Initialization
-        window.TelegramAdsController = new TelegramAdsController();
-        window.TelegramAdsController.initialize({
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        // RichAds Controller Initialization
+        const richadsController = new window.TelegramAdsController();
+
+        richadsController.initialize({
             pubId: "991750",
             appId: "5124",
+            debug: true // Testing ke liye true rakhein taaki console mein report dikhe
         });
 
-        // ✅ Function jo bina button ke ad dikhayega
-        function triggerSpaceAd() {
-            window.TelegramAdsController.show()
-            .then(() => console.log("Ad Displayed"))
-            .catch((err) => console.log("Ad not ready or No-Fill"));
-        }
+        const statusLabel = document.getElementById('log-status');
 
-        // 2. App open hote hi ad dikhao (3 second delay taaki game load ho jaye)
-        setTimeout(triggerSpaceAd, 3000);
-    </script>
+        // 1. Video Ad Trigger
+        document.getElementById('video-ad-btn').addEventListener('click', () => {
+            statusLabel.innerText = "Status: Loading Video Ad...";
+            richadsController.triggerInterstitialVideo()
+                .then((res) => {
+                    statusLabel.innerText = "Status: Video Ad Finished!";
+                    console.log("Video Success:", res);
+                })
+                .catch((err) => {
+                    statusLabel.innerText = "Status: Video Failed/Closed";
+                    console.error("Video Error:", err);
+                });
+        });
 
-    <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center; overflow: hidden; }
-        #header { padding: 20px; background: #111; border-bottom: 2px solid #0ff; display: flex; justify-content: space-around; font-weight: bold; }
-        #game { margin-top: 100px; }
-        #tapObject { 
-            width: 250px; height: 250px; margin: 0 auto; 
-            background: radial-gradient(circle, #0ff, #000); 
-            border-radius: 50%; border: 5px solid #0ff;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 40px; box-shadow: 0 0 30px #0ff; cursor: pointer;
-        }
-        #tapObject:active { transform: scale(0.95); }
-    </style>
-</head>
-<body>
+        // 2. Banner Ad Trigger
+        document.getElementById('banner-ad-btn').addEventListener('click', () => {
+            statusLabel.innerText = "Status: Loading Banner...";
+            richadsController.triggerInterstitialBanner()
+                .then((res) => {
+                    statusLabel.innerText = "Status: Banner Shown!";
+                })
+                .catch((err) => {
+                    statusLabel.innerText = "Status: Banner Error";
+                });
+        });
 
-    <div id="header">
-        <span>POINTS: <span id="score">0</span></span>
-        <span>ADS MODE: AUTO</span>
-    </div>
-
-    <div id="game">
-        <div id="tapObject" onclick="handleUserTap()">TAP!</div>
-        <p>Taps until next ad: <span id="count">4</span></p>
-    </div>
-
-    <script>
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-
-        let score = 0;
-        let clickTracker = 0; // Space Adventure jaisa counter
-
-        function handleUserTap() {
-            score++;
-            clickTracker++;
-            
-            document.getElementById("score").innerText = score;
-            document.getElementById("count").innerText = (4 - clickTracker);
-
-            // ✅ Space Adventure Logic: Har 4 clicks par auto ad trigger
-            if (clickTracker >= 4) {
-                clickTracker = 0; // Counter reset
-                triggerSpaceAd(); // Bina puche ad show karo
-                document.getElementById("count").innerText = "4";
-            }
-
-            Telegram.WebApp.HapticFeedback.impactOccurred("medium");
-        }
-
-        // Har 2 minute mein ek compulsory ad (Back-up)
-        setInterval(triggerSpaceAd, 120000);
+        // 3. Native Notification (Automatic)
+        window.onload = () => {
+            richadsController.triggerNativeNotification();
+        };
     </script>
 </body>
 </html>
-
