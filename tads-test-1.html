@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TADS.me Ad Test</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --accent: #00e5ff;
+      --accent2: #7c3aed;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .header {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .header-text p {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Status badge */
+    .status-bar {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .dot.loading { background: #f59e0b; animation: pulse 1s infinite; }
+    .dot.success { background: var(--success); }
+    .dot.error   { background: var(--error); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    #status-text {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Widget ID card */
+    .config-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .config-card label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .id-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .id-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      color: var(--accent);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .id-row input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-apply {
+      background: linear-gradient(135deg, var(--accent), #00b4cc);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-apply:active { transform: scale(0.97); opacity: 0.85; }
+
+    .debug-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .toggle {
+      width: 36px;
+      height: 20px;
+      background: var(--border);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle.on { background: var(--accent2); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle.on::after { transform: translateX(16px); }
+
+    .toggle-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Ad container */
+    .ad-section {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 10px;
+    }
+
+    .ad-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ad-wrapper.active {
+      border-color: rgba(0, 229, 255, 0.3);
+    }
+
+    .ad-placeholder {
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .ad-placeholder .icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .ad-placeholder p {
+      font-size: 12px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Log panel */
+    .log-section {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .log-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      scrollbar-width: thin;
+    }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-entry:last-child { border-bottom: none; }
+
+    .log-time { color: var(--muted); flex-shrink: 0; }
+    .log-msg.info  { color: var(--accent); }
+    .log-msg.ok    { color: var(--success); }
+    .log-msg.fail  { color: var(--error); }
+    .log-msg.warn  { color: #f59e0b; }
+
+    .btn-clear {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-family: 'Space Mono', monospace;
+      cursor: pointer;
+    }
+
+    .btn-reload {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 16px;
+      background: transparent;
+      border: 1px solid var(--accent2);
+      color: var(--accent2);
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-reload:active {
+      background: rgba(124,58,237,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">📡</div>
+    <div class="header-text">
+      <h1>TADS.me Test</h1>
+      <p>static banner · debug mode</p>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar">
+    <div class="dot loading" id="status-dot"></div>
+    <span id="status-text">Initializing...</span>
+  </div>
+
+  <!-- Config -->
+  <div class="config-card">
+    <label>Widget ID</label>
+    <div class="id-row">
+      <input type="text" id="widget-id-input" placeholder="Enter your Widget ID" value="8914" />
+      <button class="btn-apply" onclick="reloadAd()">Load Ad</button>
+    </div>
+    <div class="debug-toggle">
+      <div class="toggle" id="debug-toggle" onclick="toggleDebug()"></div>
+      <span class="toggle-label" id="debug-label">debug: false (production)</span>
+    </div>
+  </div>
+
+  <!-- Ad container -->
+  <div class="ad-section">
+    <p class="section-title">Ad Slot</p>
+    <div class="ad-wrapper" id="ad-wrapper">
+      <div class="ad-placeholder" id="ad-placeholder">
+        <span class="icon">⏳</span>
+        <p>Loading ad...</p>
+      </div>
+      <div id="tads-container-8914"></div>
+    </div>
+  </div>
+
+  <!-- Reload button -->
+  <button class="btn-reload" onclick="reloadAd()">↺ Reload Ad</button>
+
+  <!-- Log -->
+  <div class="log-section">
+    <div class="log-header">
+      <span class="section-title" style="margin:0">Console Log</span>
+      <button class="btn-clear" onclick="clearLog()">Clear</button>
+    </div>
+    <div class="log-box" id="log-box">
+      <div class="log-entry">
+        <span class="log-time">--:--:--</span>
+        <span class="log-msg info">Page loaded. Enter Widget ID and click Load Ad.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TADS SDK -->
+  <script src="https://w.tads.me/widget.js"></script>
+
+  <script>
+    let isDebug = false;
+    let currentWidgetId = '8914';
+    let adController = null;
+
+    function log(msg, type = 'info') {
+      const box = document.getElementById('log-box');
+      const now = new Date();
+      const t = now.toTimeString().slice(0, 8);
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">${t}</span><span class="log-msg ${type}">${msg}</span>`;
+      box.appendChild(entry);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function setStatus(msg, state) {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      dot.className = 'dot ' + state;
+      text.textContent = msg;
+    }
+
+    function toggleDebug() {
+      isDebug = !isDebug;
+      const toggle = document.getElementById('debug-toggle');
+      const label = document.getElementById('debug-label');
+      toggle.className = 'toggle ' + (isDebug ? 'on' : '');
+      label.textContent = isDebug ? 'debug: true (test mode)' : 'debug: false (production)';
+      log('debug mode ' + (isDebug ? 'ON' : 'OFF'), 'warn');
+    }
+
+    function clearLog() {
+      document.getElementById('log-box').innerHTML = '';
+    }
+
+    function reloadAd() {
+      const inputId = document.getElementById('widget-id-input').value.trim();
+      if (!inputId) {
+        log('Widget ID empty!', 'fail');
+        return;
+      }
+
+      // Remove old container, create new one
+      const wrapper = document.getElementById('ad-wrapper');
+      const oldContainer = document.getElementById('tads-container-' + currentWidgetId);
+      if (oldContainer) oldContainer.remove();
+
+      currentWidgetId = inputId;
+
+      const newContainer = document.createElement('div');
+      newContainer.id = 'tads-container-' + currentWidgetId;
+      wrapper.appendChild(newContainer);
+
+      // Show placeholder
+      const placeholder = document.getElementById('ad-placeholder');
+      placeholder.style.display = 'flex';
+      placeholder.innerHTML = '<span class="icon">⏳</span><p>Loading ad...</p>';
+
+      setStatus('Loading ad...', 'loading');
+      log(`Loading widget ID: ${currentWidgetId} | debug: ${isDebug}`, 'info');
+
+      // Wait for SDK
+      function initAd() {
+        if (!window.tads || !window.tads.init) {
+          log('TADS SDK not ready, retrying...', 'warn');
+          setTimeout(initAd, 300);
+          return;
+        }
+
+        try {
+          adController = window.tads.init({
+            widgetId: currentWidgetId,
+            type: 'static',
+            debug: isDebug,
+            onShowReward: (adId) => {
+              log('onShowReward: ' + JSON.stringify(adId), 'ok');
+            },
+            onClickReward: (adId) => {
+              log('onClickReward: ' + JSON.stringify(adId), 'ok');
+            },
+            onAdsNotFound: () => {
+              log('onAdsNotFound: No ads returned', 'fail');
+              setStatus('No ads found', 'error');
+              placeholder.style.display = 'flex';
+              placeholder.innerHTML = '<span class="icon">🚫</span><p>No ads found for this widget</p>';
+            }
+          });
+
+          adController.loadAd()
+            .then(() => {
+              log('loadAd() → success', 'ok');
+              return adController.showAd();
+            })
+            .then(() => {
+              log('showAd() → rendered', 'ok');
+              setStatus('Ad loaded successfully', 'success');
+              document.getElementById('ad-wrapper').classList.add('active');
+              placeholder.style.display = 'none';
+            })
+            .catch((err) => {
+              log('Error: ' + (err?.message || JSON.stringify(err)), 'fail');
+              setStatus('Ad load failed', 'error');
+              placeholder.style.display = 'flex';
+              placeholder.innerHTML = '<span class="icon">❌</span><p>' + (err?.message || 'Unknown error') + '</p>';
+            });
+
+        } catch (e) {
+          log('Init error: ' + e.message, 'fail');
+          setStatus('Init failed', 'error');
+        }
+      }
+
+      initAd();
+    }
+
+    // Auto-load on page open
+    window.addEventListener('DOMContentLoaded', () => {
+      log('TADS test page ready', 'info');
+      log('Telegram WebApp: ' + (window.Telegram?.WebApp ? 'detected' : 'not detected (browser mode)'), 'warn');
+      setStatus('Ready — click Load Ad', 'loading');
+    });
+  </script>
+</body>
+</html>
