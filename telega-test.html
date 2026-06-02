@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telega.io Ad Test</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --card: #13131a;
+      --border: #2a2a3a;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --success: #10b981;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-top: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.4);
+      color: #a78bfa;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* Status Card */
+    .status-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse-dot 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .status-text { font-size: 13px; color: var(--text); font-weight: 700; }
+    .status-sub { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'Space Mono', monospace; }
+
+    /* Ad Slot */
+    .ad-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* The actual ad container — Telega SDK injects here */
+    #telega-ad-banner {
+      min-height: 60px;
+      background: rgba(124,58,237,0.05);
+      border: 1px dashed rgba(124,58,237,0.3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    #telega-ad-interstitial {
+      min-height: 250px;
+      background: rgba(6,182,212,0.05);
+      border: 1px dashed rgba(6,182,212,0.3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    /* Trigger Button */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(124,58,237,0.5); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* Info boxes */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .info-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .info-val {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .info-key {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Log */
+    .log-box {
+      background: #0d0d14;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-entry .time { color: var(--accent); }
+    .log-entry.ok .msg { color: var(--success); }
+    .log-entry.err .msg { color: #f87171; }
+    .log-entry.info .msg { color: var(--accent2); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .footer a { color: #a78bfa; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">🧪 Test Mode</div>
+    <h1>Telega.io<br>Ad Test Page</h1>
+    <p class="subtitle">GitHub Pages Compatible</p>
+  </div>
+
+  <!-- Status -->
+  <div class="status-card">
+    <div class="status-dot"></div>
+    <div>
+      <div class="status-text" id="sdk-status">SDK Loading...</div>
+      <div class="status-sub" id="tg-status">Checking Telegram WebApp...</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="info-val" id="imp-count">0</div>
+      <div class="info-key">Impressions</div>
+    </div>
+    <div class="info-box">
+      <div class="info-val" id="ad-count">0</div>
+      <div class="info-key">Ads Loaded</div>
+    </div>
+  </div>
+
+  <!-- Banner Ad Slot -->
+  <div class="ad-section">
+    <div class="section-label">Banner Ad</div>
+    <!-- ✅ Telega.io Banner — Replace data-block-id with your actual Block ID -->
+    <div id="telega-ad-banner" data-block-id="YOUR_BANNER_BLOCK_ID">
+      BANNER AD SLOT
+    </div>
+  </div>
+
+  <!-- Interstitial Ad Slot -->
+  <div class="ad-section">
+    <div class="section-label">Interstitial Ad</div>
+    <!-- ✅ Telega.io Interstitial — Replace data-block-id with your actual Block ID -->
+    <div id="telega-ad-interstitial" data-block-id="YOUR_INTERSTITIAL_BLOCK_ID">
+      INTERSTITIAL AD SLOT (250px)
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="triggerInterstitial()">
+      ▶ Trigger Interstitial Ad
+    </button>
+  </div>
+
+  <!-- Log -->
+  <div class="log-box" id="log-box">
+    <div class="log-entry info">
+      <span class="time">--:--</span>
+      <span class="msg">Page loaded. Waiting for SDK...</span>
+    </div>
+  </div>
+
+  <!-- Reset -->
+  <button class="btn btn-secondary" onclick="location.reload()">↺ Reload Page</button>
+
+  <div class="footer">
+    Reward Software · <a href="https://telega.io/tma" target="_blank">telega.io/tma</a>
+  </div>
+
+</div>
+
+<!-- ✅ Telega.io SDK — Replace with your actual SDK URL from dashboard -->
+<!-- <script src="https://telega.io/assets/sdk.js?app_id=YOUR_APP_ID"></script> -->
+
+<script>
+  let impressions = 0;
+  let adsLoaded = 0;
+
+  function log(msg, type = 'info') {
+    const box = document.getElementById('log-box');
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' +
+                 now.getMinutes().toString().padStart(2,'0') + ':' +
+                 now.getSeconds().toString().padStart(2,'0');
+    const el = document.createElement('div');
+    el.className = `log-entry ${type}`;
+    el.innerHTML = `<span class="time">${time}</span><span class="msg">${msg}</span>`;
+    box.appendChild(el);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // Check Telegram WebApp
+  function checkTelegram() {
+    const tgEl = document.getElementById('tg-status');
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tgEl.textContent = `TG WebApp ✓ | User: ${tg.initDataUnsafe?.user?.first_name || 'Unknown'}`;
+      log('Telegram WebApp initialized ✓', 'ok');
+    } else {
+      tgEl.textContent = 'Running in Browser (not Telegram)';
+      log('No Telegram WebApp context — browser mode', 'info');
+    }
+  }
+
+  // Simulate SDK load check
+  function checkSDK() {
+    const sdkEl = document.getElementById('sdk-status');
+
+    // ⚠️ Ye check real SDK ke baad update hoga
+    // Abhi placeholder — SDK script comment me hai (upar)
+    if (typeof TelegaSDK !== 'undefined') {
+      sdkEl.textContent = 'Telega SDK Loaded ✓';
+      sdkEl.style.color = 'var(--success)';
+      log('Telega SDK detected ✓', 'ok');
+      initAds();
+    } else {
+      sdkEl.textContent = 'SDK Not Loaded (Add Block ID)';
+      log('Telega SDK not found — add your App ID in script tag', 'err');
+      log('Uncomment SDK script line & replace YOUR_APP_ID', 'info');
+    }
+  }
+
+  function initAds() {
+    // Banner init
+    try {
+      // TelegaSDK.showAd('YOUR_BANNER_BLOCK_ID'); // replace with actual call
+      adsLoaded++;
+      impressions++;
+      document.getElementById('ad-count').textContent = adsLoaded;
+      document.getElementById('imp-count').textContent = impressions;
+      log('Banner ad initialized', 'ok');
+    } catch(e) {
+      log('Banner error: ' + e.message, 'err');
+    }
+  }
+
+  function triggerInterstitial() {
+    log('Interstitial triggered by user...', 'info');
+    try {
+      // TelegaSDK.showInterstitial('YOUR_INTERSTITIAL_BLOCK_ID'); // actual call
+      impressions++;
+      document.getElementById('imp-count').textContent = impressions;
+      log('Interstitial shown ✓', 'ok');
+    } catch(e) {
+      log('Interstitial error — SDK not loaded', 'err');
+    }
+  }
+
+  // Init
+  window.addEventListener('DOMContentLoaded', () => {
+    checkTelegram();
+    setTimeout(checkSDK, 800);
+  });
+</script>
+
+</body>
+</html>
