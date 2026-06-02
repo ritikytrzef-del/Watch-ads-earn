@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Reward Software – Watch Ads</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Onclicka TMA Ad Script -->
+  <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
+
+  <!-- Gigapub Ad Script -->
+  <script src="https://ad.gigapub.tech/script?id=6521"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600&display=swap');
+
+    :root {
+      --bg: #050a14;
+      --surface: #0d1a2e;
+      --card: #0f2040;
+      --border: #1a3a5c;
+      --gold: #f5c518;
+      --gold2: #ffdd57;
+      --cyan: #00d4ff;
+      --green: #00e676;
+      --red: #ff4444;
+      --text: #e8f4ff;
+      --muted: #7a9bb5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; width: 100%; max-width: 420px; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo-text {
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--cyan);
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+    .header h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(245,197,24,0.4);
+      letter-spacing: 1px;
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Balance card */
+    .balance-card {
+      background: linear-gradient(135deg, #0d1f3c, #071525);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .balance-label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .balance-amount {
+      font-family: 'Orbitron', monospace;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--gold);
+    }
+    .balance-unit {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .balance-icon {
+      width: 48px; height: 48px;
+      background: rgba(245,197,24,0.1);
+      border: 1px solid rgba(245,197,24,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    /* Section title */
+    .section-title {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+
+    /* Ad cards */
+    .ad-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ad-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 16px rgba(0,212,255,0.08);
+    }
+
+    .ad-card-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .ad-badge {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .badge-blue { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); }
+    .badge-purple { background: rgba(180,100,255,0.1); border: 1px solid rgba(180,100,255,0.2); }
+
+    .ad-info { flex: 1; }
+    .ad-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .ad-desc { font-size: 13px; color: var(--muted); }
+
+    .reward-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .reward-pill {
+      background: rgba(0,230,118,0.08);
+      border: 1px solid rgba(0,230,118,0.2);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--green);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .reward-pill span { font-size: 14px; }
+
+    /* Buttons */
+    .btn-watch {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Orbitron', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-watch:active { transform: scale(0.97); }
+    .btn-watch:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #0077cc, #00d4ff);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0,212,255,0.3);
+    }
+    .btn-purple {
+      background: linear-gradient(135deg, #6b21a8, #b464ff);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(180,100,255,0.3);
+    }
+
+    .btn-watch::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .btn-watch:not(:disabled):hover::after {
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 999;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap;
+      max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: rgba(0,230,118,0.4); }
+    #toast.error { border-color: rgba(255,68,68,0.4); }
+
+    /* Loader spinner inside button */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    .footer a { color: var(--cyan); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-text">Reward Software</div>
+    <h1>💰 Watch & Earn</h1>
+    <p>Watch ads to earn USDT rewards instantly</p>
+  </div>
+
+  <!-- Balance -->
+  <div class="balance-card">
+    <div>
+      <div class="balance-label">Total Earned</div>
+      <div class="balance-amount" id="balDisplay">0.000</div>
+      <div class="balance-unit">USDT</div>
+    </div>
+    <div class="balance-icon">💎</div>
+  </div>
+
+  <div class="section-title">📺 Available Ad Networks</div>
+
+  <!-- Card 1: Onclicka TMA -->
+  <div class="ad-card">
+    <div class="ad-card-top">
+      <div class="ad-badge badge-blue">⚡</div>
+      <div class="ad-info">
+        <div class="ad-name" style="color: var(--cyan);">Onclicka TMA</div>
+        <div class="ad-desc">In-stream TMA reward ad</div>
+      </div>
+    </div>
+    <div class="reward-row">
+      <div class="reward-pill"><span>🟢</span> +0.001 USDT per view</div>
+    </div>
+    <button class="btn-watch btn-blue" id="btn1" onclick="playOnclicka()">
+      ▶ Watch Ad #1
+    </button>
+  </div>
+
+  <!-- Card 2: Gigapub -->
+  <div class="ad-card">
+    <div class="ad-card-top">
+      <div class="ad-badge badge-purple">🚀</div>
+      <div class="ad-info">
+        <div class="ad-name" style="color: #b464ff;">Gigapub Ads</div>
+        <div class="ad-desc">Gigapub reward network</div>
+      </div>
+    </div>
+    <div class="reward-row">
+      <div class="reward-pill"><span>🟢</span> +0.001 USDT per view</div>
+    </div>
+    <button class="btn-watch btn-purple" id="btn2" onclick="playGigapub()">
+      ▶ Watch Ad #2
+    </button>
+  </div>
+
+  <div class="footer">Powered by <a href="#">Reward Software</a></div>
+</div>
+
+<!-- Toast -->
+<div id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Ad watched!</span>
+</div>
+
+<script>
+  // Init Telegram WebApp
+  window.Telegram?.WebApp?.ready();
+  window.Telegram?.WebApp?.expand();
+
+  // Balance
+  let balance = parseFloat(localStorage.getItem('rs_balance') || '0');
+  function updateBalance(add) {
+    balance += add;
+    localStorage.setItem('rs_balance', balance.toFixed(6));
+    document.getElementById('balDisplay').textContent = balance.toFixed(3);
+  }
+  document.getElementById('balDisplay').textContent = balance.toFixed(3);
+
+  // Toast helper
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    const icon = document.getElementById('toastIcon');
+    const msgEl = document.getElementById('toastMsg');
+    icon.textContent = type === 'success' ? '✅' : '❌';
+    msgEl.textContent = msg;
+    t.className = `show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+  }
+
+  // Button loading state
+  function setBtnLoading(btnId, loading, originalText) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? `<span class="spinner"></span> Loading Ad...`
+      : originalText;
+  }
+
+  // ─── Onclicka TMA ───────────────────────────────────────────
+  window.initCdTma?.({ id: '6095091' })
+    .then(show => { window.onclickaShow = show; })
+    .catch(e => console.log('Onclicka init error:', e));
+
+  function playOnclicka() {
+    setBtnLoading('btn1', true, '▶ Watch Ad #1');
+    if (!window.onclickaShow) {
+      // retry init
+      window.initCdTma?.({ id: '6095091' })
+        .then(show => {
+          window.onclickaShow = show;
+          return show();
+        })
+        .then(() => {
+          updateBalance(0.001);
+          showToast('Ad #1 watched! +0.001 USDT earned 🎉');
+        })
+        .catch(e => {
+          console.log(e);
+          showToast('Ad #1 not available right now', 'error');
+        })
+        .finally(() => setBtnLoading('btn1', false, '▶ Watch Ad #1'));
+      return;
+    }
+    window.onclickaShow()
+      .then(() => {
+        updateBalance(0.001);
+        showToast('Ad #1 watched! +0.001 USDT earned 🎉');
+      })
+      .catch(e => {
+        console.log(e);
+        showToast('Ad #1 not available right now', 'error');
+      })
+      .finally(() => setBtnLoading('btn1', false, '▶ Watch Ad #1'));
+  }
+
+  // ─── Gigapub ─────────────────────────────────────────────────
+  function playGigapub() {
+    setBtnLoading('btn2', true, '▶ Watch Ad #2');
+    if (typeof window.showGiga !== 'function') {
+      showToast('Gigapub not loaded yet', 'error');
+      setBtnLoading('btn2', false, '▶ Watch Ad #2');
+      return;
+    }
+    window.showGiga()
+      .then(() => {
+        updateBalance(0.001);
+        showToast('Ad #2 watched! +0.001 USDT earned 🎉');
+      })
+      .catch(e => {
+        console.log(e);
+        showToast('Ad #2 not available right now', 'error');
+      })
+      .finally(() => setBtnLoading('btn2', false, '▶ Watch Ad #2'));
+  }
+</script>
+
+</body>
+</html>
